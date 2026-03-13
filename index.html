@@ -9,51 +9,59 @@
     body {
       background: #111;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
+      justify-content: center;
       min-height: 100vh;
       overflow-y: auto;
       font-family: monospace;
       color: #ccc;
+      gap: 20px;
+      padding: 20px;
+    }
+    .wrapper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 20px;
     }
     canvas {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      max-width: 100vw;
       cursor: default;
-      margin-top: 20px;
+      flex-shrink: 0;
     }
     #file-input { display: none; }
 
     .instructions {
-      max-width: 660px;
-      width: 100%;
-      margin: 20px auto 40px;
+      width: 280px;
+      flex-shrink: 0;
       background: #1a1a2e;
       border: 2px solid #3344FF;
       border-radius: 4px;
-      padding: 24px 28px;
+      padding: 16px 18px;
       box-shadow: 0 0 20px rgba(51, 68, 255, 0.15);
+      max-height: 480px;
+      overflow-y: auto;
     }
     .instructions h2 {
       color: #FFDD00;
-      font-size: 14px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 2px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       border-bottom: 1px solid #333;
-      padding-bottom: 8px;
+      padding-bottom: 6px;
     }
     .instructions h3 {
       color: #3344FF;
-      font-size: 12px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin: 14px 0 8px;
+      margin: 10px 0 4px;
     }
     .instructions p, .instructions li {
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 10px;
+      line-height: 1.5;
       color: #aaa;
     }
     .instructions ul {
@@ -69,10 +77,10 @@
       color: #FFDD00;
       border: 1px solid #3344FF;
       border-radius: 3px;
-      padding: 1px 6px;
-      font-size: 11px;
+      padding: 0 4px;
+      font-size: 9px;
       font-family: monospace;
-      min-width: 20px;
+      min-width: 16px;
       text-align: center;
     }
     .instructions .step-list {
@@ -80,7 +88,7 @@
     }
     .instructions .step-list li {
       counter-increment: steps;
-      padding: 4px 0 4px 0;
+      padding: 2px 0;
     }
     .instructions .step-list li::before {
       content: counter(steps) ". ";
@@ -90,11 +98,23 @@
     .instructions .cols {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0 24px;
+      gap: 0 12px;
+    }
+    @media (max-width: 960px) {
+      .wrapper {
+        flex-direction: column;
+        align-items: center;
+      }
+      .instructions {
+        width: 640px;
+        max-width: 100vw;
+        max-height: none;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="wrapper">
   <canvas id="screen" width="640" height="480" tabindex="0"></canvas>
   <input type="file" id="file-input" accept=".mod">
 
@@ -167,6 +187,7 @@
       <li>Trykk <span class="key">SAVE</span> for å laste ned sangen som .mod-fil</li>
       <li>Du kan dra og slippe hvilken som helst .mod-fil rett på trackeren</li>
     </ul>
+  </div>
   </div>
 
   <script type="module" src="/src/main.ts"></script>
