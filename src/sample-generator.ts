@@ -1,5 +1,5 @@
 // src/sample-generator.ts
-// Genererer 8 basis-samples. Port fra SampleGenerator.swift.
+// Genererer 13 basis-samples for musikkproduksjon.
 
 import { Sample } from './mod-file';
 
@@ -8,14 +8,21 @@ export function defaultSamples(): Sample[] {
     name: '', data: new Int8Array(0), length: 0,
     finetune: 0, volume: 64, repeatOffset: 0, repeatLength: 2,
   }));
-  samples[0] = makeKick();
-  samples[1] = makeSnare();
-  samples[2] = makeClosedHiHat();
-  samples[3] = makeOpenHiHat();
-  samples[4] = makeClap();
-  samples[5] = makeBass();
-  samples[6] = makeLead();
-  samples[7] = makePad();
+  // Drums
+  samples[0]  = makeKick();
+  samples[1]  = makeSnare();
+  samples[2]  = makeClosedHiHat();
+  samples[3]  = makeOpenHiHat();
+  samples[4]  = makeClap();
+  samples[5]  = makeTom();
+  samples[6]  = makeCowbell();
+  // Melodic
+  samples[7]  = makeBass();
+  samples[8]  = makeLead();
+  samples[9]  = makePad();
+  samples[10] = makeOrgan();
+  samples[11] = makeStrings();
+  samples[12] = makePluck();
   return samples;
 }
 
@@ -88,6 +95,33 @@ function makeClap(): Sample {
   return makeSample('Clap', buf, 60);
 }
 
+function makeTom(): Sample {
+  // Tom: sine med pitch-decay, dypere og lengre enn kick
+  const len = 5000;
+  const buf = new Int8Array(len);
+  for (let i = 0; i < len; i++) {
+    const t = i / 8287;
+    const env = Math.max(0, 1 - t * 3);
+    const freq = 120 * Math.exp(-t * 10) + 60;
+    buf[i] = Math.max(-128, Math.min(127, Math.sin(2 * Math.PI * freq * t) * 127 * env | 0));
+  }
+  return makeSample('Tom', buf, 64);
+}
+
+function makeCowbell(): Sample {
+  // Cowbell: to faste frekvenser (540 + 800 Hz), kort decay
+  const len = 3000;
+  const buf = new Int8Array(len);
+  for (let i = 0; i < len; i++) {
+    const t = i / 8287;
+    const env = Math.max(0, 1 - t * 8);
+    const s1 = Math.sin(2 * Math.PI * 540 * t);
+    const s2 = Math.sin(2 * Math.PI * 800 * t);
+    buf[i] = Math.max(-128, Math.min(127, (s1 * 0.6 + s2 * 0.4) * 100 * env | 0));
+  }
+  return makeSample('Cowbell', buf, 50);
+}
+
 function makeBass(): Sample {
   const cycleLen = 32, totalLen = cycleLen * 8;
   const buf = new Int8Array(totalLen);
@@ -120,4 +154,51 @@ function makePad(): Sample {
     buf[i] = Math.max(-128, Math.min(127, mix * 90 | 0));
   }
   return makeSample('Pad', buf, 45, 0, totalLen / 2);
+}
+
+function makeOrgan(): Sample {
+  // Organ: grunntone + 2. + 3. harmonisk, drawbar-stil
+  const cycleLen = 32, totalLen = cycleLen * 8;
+  const buf = new Int8Array(totalLen);
+  for (let i = 0; i < totalLen; i++) {
+    const phase = (i % cycleLen) / cycleLen;
+    const h1 = Math.sin(2 * Math.PI * phase);
+    const h2 = Math.sin(2 * Math.PI * phase * 2) * 0.5;
+    const h3 = Math.sin(2 * Math.PI * phase * 3) * 0.25;
+    buf[i] = Math.max(-128, Math.min(127, (h1 + h2 + h3) / 1.75 * 90 | 0));
+  }
+  return makeSample('Organ', buf, 50, 0, totalLen / 2);
+}
+
+function makeStrings(): Sample {
+  // Strings: sagtann (rike harmoniske), looped
+  const cycleLen = 64, totalLen = cycleLen * 4;
+  const buf = new Int8Array(totalLen);
+  for (let i = 0; i < totalLen; i++) {
+    const phase = (i % cycleLen) / cycleLen;
+    // Bandlimited sagtann via additive syntese (6 harmoniske)
+    let val = 0;
+    for (let h = 1; h <= 6; h++) {
+      val += Math.sin(2 * Math.PI * phase * h) / h;
+    }
+    buf[i] = Math.max(-128, Math.min(127, val * 50 | 0));
+  }
+  return makeSample('Strings', buf, 45, 0, totalLen / 2);
+}
+
+function makePluck(): Sample {
+  // Pluck: Karplus-Strong-inspirert, decay fra noise-burst
+  const len = 6000;
+  const buf = new Int8Array(len);
+  const cycleLen = 32;
+  // Fyll første syklus med tilfeldig noise
+  for (let i = 0; i < cycleLen; i++) {
+    buf[i] = Math.max(-128, Math.min(127, (Math.random() * 2 - 1) * 100 | 0));
+  }
+  // Karplus-Strong: gjenta med glatting
+  for (let i = cycleLen; i < len; i++) {
+    buf[i] = Math.max(-128, Math.min(127,
+      (buf[i - cycleLen] + buf[i - cycleLen + 1]) / 2 * 0.996 | 0));
+  }
+  return makeSample('Pluck', buf, 55);
 }
