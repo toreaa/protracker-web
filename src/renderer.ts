@@ -137,7 +137,7 @@ export class Renderer {
     ctx.fillText('PROTRACKER 2.3F', 320, 80);
     ctx.font = FONT;
     ctx.fillText('— A new version by: —', 320, 95);
-    ctx.fillText('audioHarald', 320, 110);
+    ctx.fillText('Harald - El loco', 320, 110);
     ctx.textAlign = 'left';
 
     // ---- Seksjon C: Songname / Samplename ----
