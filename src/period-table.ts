@@ -14,8 +14,16 @@ export const NOTE_NAMES = [
 ];
 
 export function periodToNoteName(period: number): string {
+  if (period === 0) return '---';
   const idx = PERIODS.indexOf(period);
-  return idx >= 0 ? NOTE_NAMES[idx] : '???';
+  if (idx >= 0) return NOTE_NAMES[idx];
+  // Finn nærmeste match for finetune-justerte perioder
+  let best = 0, bestDist = Math.abs(PERIODS[0] - period);
+  for (let i = 1; i < PERIODS.length; i++) {
+    const dist = Math.abs(PERIODS[i] - period);
+    if (dist < bestDist) { best = i; bestDist = dist; }
+  }
+  return NOTE_NAMES[best];
 }
 
 // ProTracker keyboard layout
